@@ -1,78 +1,62 @@
-#include<stdio.h>
-#include<stdlib.h>
-#define SIZE 5
-struct queue
+#include <stdio.h>
+#include <stdlib.h>
+#include<ctype.h>
+#include<math.h>
+#define SIZE 10
+struct stack
 {
-
-    int r,f;
-    int data[SIZE];
-
+    int top;
+    float data[SIZE];
 };
-typedef struct queue QUEUE;
-void enqueue(QUEUE *q,int item)
+typedef struct stack STACK;
+void push(STACK *s,float item)
 {
-    if(q->r==SIZE-1)
-        printf("\n Queue full");
-    else{
-        q->r=q->r+1;
-        q->data[q->r]=item;
-        if(q->f==-1)
-            q->f=0;
-        printf("\n Inserted %d into the queue. \n",item);
-
+    s->data[++(s->top)]=item;
+}
+float pop(STACK *s)
+{
+    return s->data[(s->top)--];
+}
+float compute(float opr1,char symbol,float opr2)
+{
+    switch(symbol)
+    {
+        case '+': return opr1+opr2;
+        case '-': return opr1-opr2;
+        case '*': return opr1*opr2;
+        case '/': return opr1/opr2;
+        case '^': return pow(opr1,opr2);
     }
 }
-void dequeue(QUEUE *q){
-if(q->f==-1)
-    printf("\n Queue empty");
-    else{
-        printf("\n Element deleted is %d",q->data[q->f]);
-        if(q->f==q->r)
-        {
-            q->f=-1;
-            q->r=-1;
-
-        }
-        else
-            q->f=q->f+1;
-
-    }
-}
-void display(QUEUE q)
+float evaluate_postfix(STACK *s,char postfix[20])
 {
     int i;
-     if (q.f==-1)
-        printf("\n QUEUE is empty");
-     else{
-        printf("\n content of Queue \n");
-        for(i=q.f;i<=q.r;i++)
-            printf("%d\t",q.data[i]);
-     }
-}
-int main(){
-int item,ch;
-QUEUE q;
-q.f==-1;
-q.r=-1;
-while(1)
+    float opr1,opr2,res;
+    char symbol;
+    for(i=0;postfix[i]!='\0';i++)
     {
-        printf("\n --- Queue operations---");
-        printf("\n 1.Enqueue. \n 2. Dequeue. \n 3.Display. \n4.Exit.");
-        printf("\n Enter your choice:");
-        scanf("%d",&ch);
-        switch(ch){
-    case 1:printf("\n Enter element to insert: ");
-        scanf("%d",&item);
-        enqueue(&q,item);
-        break;
-    case 2:dequeue(&q);
-        break;
-    case 3:display(q);
-        break;
-    case 4:printf("\n Exiting program \n");
-        exit(0);
-    default:printf("\n Invalid choice \n");
+        symbol=postfix[i];
+        if(isdigit(symbol))
+            push(s,symbol-'0');
+        else
+        {
+            opr2=pop(s);
+            opr1=pop(s);
+            res=compute(opr1,symbol,opr2);
+            push(s,res);
+        }
+    }
+    return pop(s);
 }
-}
-return 0;
+int main()
+{
+    char postfix[20];
+    STACK s;
+    s.top=-1;
+    float result;
+    printf("\nRead postfix expression: \n");
+    scanf("%s",postfix);
+    result=evaluate_postfix(&s,postfix);
+    printf("\nThe final result is %f",result);
+    return 0;
 }
